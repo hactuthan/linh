@@ -1,0 +1,666 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Hoàng Thị Thùy Linh">
+    <title>Hắc Tử Thần - CNTT</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
+    <link href="flexslider/flexslider.css" rel="stylesheet" />
+    <link href="css/scrolling-nav.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <link href="css/responsive.css" rel="stylesheet" />
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous" />
+    <link href="css/headline.css" rel="stylesheet" />
+    <link href="css/ionicons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/owl.carousel.css" />
+    <link rel="stylesheet" href="css/owl.theme.css" />
+    <link rel='stylesheet' href='https://cdn.rawgit.com/daneden/animate.css/v3.1.0/animate.min.css'>
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link rel="icon" href="./images/rsz_anh_1_18.png">
+
+    <script>
+        // <![CDATA[
+        var bits = 8;
+        var speed = 4; // T?c đ? như th? nào, càng nh? càng nhanh
+        var bangs = 100; // S? pháo hoa có th? xu?t hi?n cùng lúc (Nhi?u quá s? có th? gây lag cho tr?nh duy?t)
+        var colours = new Array("#03f", "#f03", "#0e0", "#93f", "#0cf", "#f93", "#f0c");
+        //                     Xanh    Đ?     Xanh lá   Tía  Xanh cyan  Cam   H?ng
+        var bangheight = new Array();
+        var intensity = new Array();
+        var colour = new Array();
+        var Xpos = new Array();
+        var Ypos = new Array();
+        var dX = new Array();
+        var dY = new Array();
+        var stars = new Array();
+        var decay = new Array();
+        var swide = 800;
+        var shigh = 600;
+        var boddie;
+        window.onload = function() {
+            if (document.getElementById) {
+                var i;
+                boddie = document.createElement("div");
+                boddie.style.position = "fixed";
+                boddie.style.top = "0px";
+                boddie.style.left = "0px";
+                boddie.style.overflow = "visible";
+                boddie.style.width = "1px";
+                boddie.style.height = "1px";
+                boddie.style.backgroundColor = "transparent";
+                document.body.appendChild(boddie);
+                set_width();
+                for (i = 0; i < bangs; i++) {
+                    write_fire(i);
+                    launch(i);
+                    setInterval('stepthrough(' + i + ')', speed);
+                }
+            }
+        }
+
+        function write_fire(N) {
+            var i, rlef, rdow;
+            stars[N + 'r'] = createDiv('|', 12);
+            boddie.appendChild(stars[N + 'r']);
+            for (i = bits * N; i < bits + bits * N; i++) {
+                stars[i] = createDiv('*', 13);
+                boddie.appendChild(stars[i]);
+            }
+        }
+
+        function createDiv(char, size) {
+            var div = document.createElement("div");
+            div.style.font = size + "px monospace";
+            div.style.position = "absolute";
+            div.style.backgroundColor = "transparent";
+            div.appendChild(document.createTextNode(char));
+            return (div);
+        }
+
+        function launch(N) {
+            colour[N] = Math.floor(Math.random() * colours.length);
+            Xpos[N + "r"] = swide * 0.5;
+            Ypos[N + "r"] = shigh - 5;
+            bangheight[N] = Math.round((0.5 + Math.random()) * shigh * 0.4);
+            dX[N + "r"] = (Math.random() - 0.5) * swide / bangheight[N];
+            if (dX[N + "r"] > 1.25) stars[N + "r"].firstChild.nodeValue = "/";
+            else if (dX[N + "r"] < -1.25) stars[N + "r"].firstChild.nodeValue = "\\";
+            else stars[N + "r"].firstChild.nodeValue = "|";
+            stars[N + "r"].style.color = colours[colour[N]];
+        }
+
+        function bang(N) {
+            var i, Z, A = 0;
+            for (i = bits * N; i < bits + bits * N; i++) {
+                Z = stars[i].style;
+                Z.left = Xpos[i] + "px";
+                Z.top = Ypos[i] + "px";
+                if (decay[i]) decay[i]--;
+                else A++;
+                if (decay[i] == 15) Z.fontSize = "7px";
+                else if (decay[i] == 7) Z.fontSize = "2px";
+                else if (decay[i] == 1) Z.visibility = "hidden";
+                Xpos[i] += dX[i];
+                Ypos[i] += (dY[i] += 1.25 / intensity[N]);
+            }
+            if (A != bits) setTimeout("bang(" + N + ")", speed);
+        }
+
+        function stepthrough(N) {
+            var i, M, Z;
+            var oldx = Xpos[N + "r"];
+            var oldy = Ypos[N + "r"];
+            Xpos[N + "r"] += dX[N + "r"];
+            Ypos[N + "r"] -= 4;
+            if (Ypos[N + "r"] < bangheight[N]) {
+                M = Math.floor(Math.random() * 3 * colours.length);
+                intensity[N] = 5 + Math.random() * 4;
+                for (i = N * bits; i < bits + bits * N; i++) {
+                    Xpos[i] = Xpos[N + "r"];
+                    Ypos[i] = Ypos[N + "r"];
+                    dY[i] = (Math.random() - 0.5) * intensity[N];
+                    dX[i] = (Math.random() - 0.5) * (intensity[N] - Math.abs(dY[i])) * 1.25;
+                    decay[i] = 16 + Math.floor(Math.random() * 16);
+                    Z = stars[i];
+                    if (M < colours.length) Z.style.color = colours[i % 2 ? colour[N] : M];
+                    else if (M < 2 * colours.length) Z.style.color = colours[colour[N]];
+                    else Z.style.color = colours[i % colours.length];
+                    Z.style.fontSize = "13px";
+                    Z.style.visibility = "visible";
+                }
+                bang(N);
+                launch(N);
+            }
+            stars[N + "r"].style.left = oldx + "px";
+            stars[N + "r"].style.top = oldy + "px";
+        }
+        window.onresize = set_width;
+
+        function set_width() {
+            var sw_min = 999999;
+            var sh_min = 999999;
+            if (document.documentElement && document.documentElement.clientWidth) {
+                if (document.documentElement.clientWidth > 0) sw_min = document.documentElement.clientWidth;
+                if (document.documentElement.clientHeight > 0) sh_min = document.documentElement.clientHeight;
+            }
+            if (typeof(self.innerWidth) != "undefined" && self.innerWidth) {
+                if (self.innerWidth > 0 && self.innerWidth < sw_min) sw_min = self.innerWidth;
+                if (self.innerHeight > 0 && self.innerHeight < sh_min) sh_min = self.innerHeight;
+            }
+            if (document.body.clientWidth) {
+                if (document.body.clientWidth > 0 && document.body.clientWidth < sw_min) sw_min = document.body.clientWidth;
+                if (document.body.clientHeight > 0 && document.body.clientHeight < sh_min) sh_min = document.body.clientHeight;
+            }
+            if (sw_min == 999999 || sh_min == 999999) {
+                sw_min = 800;
+                sh_min = 600;
+            }
+            swide = sw_min;
+            shigh = sh_min;
+        }
+        // ]]>
+    </script>
+</head>
+
+<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+    <div class="se-pre-con"></div>
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="top-bar">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <ul class="list-inline">
+                            <li><a href="http://hactuthan.com/"><i class="ion-eye"> &nbsp;</i>Hoàng Thị Thùy Linh</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-6 text-right hidden-xs">
+                        <ul class="list-inline top-socials">
+                            <li><a href="http://fb.com/quangbao.cv"><i class="ion-social-facebook"></i></a></li>
+                            <li><a href=""><i class="ion-social-twitter"></i></a></li>
+                            <li><a href="mailto:nguyenquangbao0011@gmail.com"><i class="ion-social-googleplus"></i></a></li>
+                            <li><a href="tel:0779330932"><i class="fa fa-phone" aria-hidden="true"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand page-scroll logo no-margin" href="#page-top">Hắc Tử Thần<!-- <img src="https://www.spreadshirt.ca/image-server/v1/designs/12485105,width=178,height=178/chinese-new-years-zodiac-year-of-the-rooster.png" height="50" />--></a>
+            </div>
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="hidden">
+                        <a class="page-scroll" href="#page-top"></a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#page-top">HOME </a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#main">MAIN</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#wishes">IMPORTANT</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#pic">ALBUM</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <section id="home" class="slider-banner">
+        <div class="main-slider">
+            <ul class="slides">
+                <li>
+                    <img src="images/bg1.png" alt="" />
+                </li>
+                <li>
+                    <img src="images/bg1.png" alt="" />
+                </li>
+                <li>
+                    <img src="images/bg1.png" alt="" />
+                </li>
+            </ul>
+            <div class="slider-overlay">
+                <div class="slider-table">
+                    <div class="slider-vm">
+                        <div class="cd-intro">
+                            <h1 class="cd-headline clip is-full-width">
+                                <span class="cd-words-wrapper">
+                                            <b class="is-visible">Welcome To Hắc Tử Thần</b>
+                                            <b>we are one</b>
+                                            <b>we are anonymous ^^</b>
+                                        </span>
+                            </h1>
+                            <p></p>
+                            <a href="#" class="btn btn-lg btn-warning ">Bay màu</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mouse-down "><a href="#main" class="page-scroll"><i class="ion-mouse"></i></a></div>
+    </section>
+
+    <!-- Countdown -->
+
+    <section class="content-section">
+        <script>
+            function demnguoc() {
+                var lunarnewyear = new Date("January 28, 2017 00:00:00");
+                var now = new Date();
+                var timeDiff = lunarnewyear.getTime() - now.getTime();
+                if (timeDiff <= 0) {
+                    clearTimeout(timer);
+                    return false;
+                }
+
+
+                var seconds = Math.floor(timeDiff / 1000);
+                var minutes = Math.floor(seconds / 60);
+                var hours = Math.floor(minutes / 60);
+                var days = Math.floor(hours / 24);
+                hours %= 24;
+                minutes %= 60;
+                seconds %= 60;
+                document.getElementById("ngay").innerHTML = days;
+                document.getElementById("gio").innerHTML = hours;
+                document.getElementById("phut").innerHTML = minutes;
+                document.getElementById("giay").innerHTML = seconds;
+                var timer = setTimeout('demnguoc()', 1000);
+            }
+        </script>
+        <div class="row no-margin">
+            <div class="col-sm-3 no-padding">
+                <div class="single_process" style="background:#C41735;;">
+                    <h4><span id="ngay"></span></h4>
+                    <p>We</p>
+                </div>
+            </div>
+            <div class="col-sm-3 no-padding">
+                <div class="single_process" style="background-color:#E41B3F;">
+                    <h4><span id="gio"></span></h4>
+                    <p>Are</p>
+                </div>
+            </div>
+            <div class="col-sm-3 no-padding">
+                <div class="single_process" style="background-color:#E62B4C;">
+                    <h4><span id="phut"></span></h4>
+                    <p>One</p>
+                </div>
+            </div>
+            <div class="col-sm-3 no-padding">
+                <div class="single_process" style="background-color:#E73C5A;">
+                    <h4><span id="giay"></span></h4>
+                    <p><i class="fas fb-heart-rate "></i> </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        demnguoc();
+    </script>
+    <!-- Main -->
+    <section id="main" class="main-section all-space">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 scrollReveal sr-bottom sr-ease-in-out-quad sr-delay-1">
+                    <h1 class="section-heading wow bounceOut " data-wow-duration="2s" data-wow-delay="3s" data-wow-iteration="105" style="text-shadow: 2px 2px rgb(175, 221, 9)">Quân Đoàn Hắc Tử Thần</h1>
+                    <p>Click On Icons To See what I want to say </p>
+
+                </div>
+            </div>
+            <div class="height-60"> </div>
+            <div class="row">
+                <div class="col-sm-3 col-xs-12 ">
+                    <div class="inner text-center scrollReveal sr-bottom sr-delay-1 wow shake " data-wow-duration="2s" data-wow-delay="3s" data-wow-iteration="2">
+                        <a class="page-scroll" href="#wishes"><i class="ion-ios-home"></i></a>
+                        <h2>My Family</h2>
+                        <p style="text-shadow: 1px 1px rgb(204, 9, 51)">Hắc Tử Thần luôn là Gia đình Thân Yêu Của Tôi!!!</p>
+                    </div>
+                </div>
+                <div class="col-sm-3 col-xs-12">
+                    <div class="inner text-center scrollReveal sr-bottom sr-delay-2">
+                        <a class="page-scroll" href="#wishes"><i class="ion-ios-people"></i></a>
+                        <h2>My Friends</h2>
+                        <p style="text-shadow: 1px 1px rgb(204, 9, 51)">Những Người Bạn Hắc Tử Thần!!!</p>
+                    </div>
+                </div>
+                <div class="col-sm-3 col-xs-12">
+                    <div class="inner text-center scrollReveal sr-bottom sr-delay-3">
+                        <a class="page-scroll" href="#wishes"><i class="ion-ios-heart"></i></a>
+                        <h2>My working</h2>
+                        <p style="text-shadow: 1px 1px rgb(204, 9, 51)"> working all on Internet</p>
+                    </div>
+                </div>
+                <div class="col-sm-3 col-xs-12">
+                    <div class="inner text-center scrollReveal  sr-bottom sr-delay-4">
+                        <a class="page-scroll" href="#wishes"><i class="ion-help-buoy"></i></a>
+                        <h2>Myself</h2>
+                        <p style="text-shadow: 1px 1px rgb(204, 9, 51)">All pepple</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Musics  -->
+    <section class="counter-section" style="background: url('https://www.androidguys.com/wp-content/uploads/2016/04/8bit_wallpaper20.jpg') no-repeat center center;">
+        <div class="container">
+            <div class="row">
+                <div style="background-color:black" id="player4" class="aplayer"></div>
+            </div>
+        </div>
+    </section>
+    <!-- My Wishes -->
+    <section id="wishes" class="all-space">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-xs-12 scrollReveal sr-bottom sr-ease-in-out-quad sr-delay-1">
+                    <h1 class="section-heading"> what I want to say </h1>
+                    <p>-.-</p>
+                </div>
+            </div>
+            <div class="height-60"> </div>
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2 col-xs-12 col-sm-12">
+                    <ul class="row list-unstyled wishes-list">
+                        <li class="col-sm-6 col-xs-12 clearfix scrollReveal sr-bottom">
+                            <i class="ion-ios-home"></i>
+                            <div class="content">
+                                <h4>For My Family</h4>
+                                <p>
+                                    Hy vọng Ae trong gia đình Hắc Tử Thần có cuộc sống thật tốt và thành công trong cuộc sống
+                                    </br>
+
+
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                </p>
+                            </div>
+                        </li>
+                        <li class="col-sm-6 col-xs-12 clearfix  scrollReveal sr-bottom sr-delay-1">
+                            <i class="ion-ios-people"></i>
+                            <div class="content">
+                                <h4>For My Friends</h4>
+                                <p>
+                                    Là những người bạn của tôi , hãy làm nhưng xong rồi nói .. I love You all
+                                    </br>
+
+
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                </p>
+                            </div>
+                        </li>
+                        <li class="col-sm-6 col-xs-12 clearfix  scrollReveal sr-bottom sr-delay-1">
+                            <i class="ion-ios-people"></i>
+                            <div class="content">
+                                <h4>For My Friends</h4>
+                                <p>
+                                    Bọn mày là căn nhà thứ 2 của tao, đẻ tao chia sẻ nỗi buồn niềm vui ! </br>
+                                    </br>
+                                    </br>
+                            </div>
+                        </li>
+                        <li class="col-sm-6 col-xs-12 clearfix scrollReveal sr-bottom sr-delay-2">
+                            <i class="ion-ios-heart"></i>
+                            <div class="content">
+                                <h4>For My Crush Tr</h4>
+                                <p>
+                                    :) mong cậu học giỏi và trưởng thành ! Và mai sau làm vợ tớ nhé hihi ^^ :P</br>
+                                    </br>
+                                    </br>
+                                </p>
+                            </div>
+                        </li>
+                        <li class="col-sm-6 col-xs-12 clearfix scrollReveal sr-bottom sr-delay-3">
+                            <i class="ion-help-buoy"></i>
+                            <div class="content">
+                                <h4>For Myself</h4>
+                                <p>
+                                    Còn mày -.- mong tiến bộ hơn trước và trưởng thành hơn nhé :V</br>
+                                    </br>
+                                    </br>
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Random Wishes -->
+    <section class="counter-section" style="background: url(https://i.imgur.com/0K1CoIw.jpg) no-repeat center center;">
+        <div class="container">
+            <div class="row">
+                <center>
+                    <h1>Quân Đoàn Hắc Tử Thần</h1>
+                    <br /><br /><br />
+                    <font size="4" id="RandomWishes"></font>
+                </center>
+            </div>
+        </div>
+    </section>
+    <script src="js/randomwishes.js"></script>
+    <script src="js/APlayer.min.js"></script>
+    <script src="js/audios.js"></script>
+    <!-- Album -->
+    <section id="pic" class="album-section all-space">
+        <div class="container-fluid no-padding">
+            <div class="row no-margin">
+                <div class="col-lg-12 col-xs-12 scrollReveal sr-bottom sr-ease-in-out-quad sr-delay-1">
+                    <h1 class="section-heading">Album</h1>
+                    <p>Pictures About Me</p>
+
+                </div>
+                <div class="height-40"> </div>
+            </div>
+            <div class="height-50"> </div>
+            <div class="Our-album">
+                <div class="row no-margin">
+                    <div class="col-sm-6 col-md-6 col-xs-12 no-padding">
+                        <div class="album-wrapper">
+                            <a href="#" class="overlay">
+                                <div class="overlay-inner">
+                                    <h4 class="base">Hắc Tử Thần</h4>
+                                    <div class="line"></div>
+                                    <p>Hoàng Thị Thùy Linh</p>
+                                </div>
+                            </a>
+                            <img src="images/album/1.jpg" alt="..." />
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3 col-xs-12 no-padding">
+                        <div class="album-wrapper">
+                            <a href="#" class="overlay">
+                                <div class="overlay-inner">
+                                    <h4 class="base">Hắc Tử Thần</h4>
+                                    <div class="line"></div>
+                                    <p>Hoàng Thị Thùy Linh</p>
+                                </div>
+                            </a>
+                            <img src="images/album/2.jpg" alt="Happy Lunar New Year 2019" />
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3 col-xs-12 no-padding">
+                        <div class="album-wrapper">
+                            <a href="#" class="overlay">
+                                <div class="overlay-inner">
+                                    <h4 class="base">Hắc Tử Thần</h4>
+                                    <div class="line"></div>
+                                    <p>Hoàng Thị Thùy Linh</p>
+                                </div>
+                            </a>
+                            <img src="images/album/3.jpg" alt="Happy Lunar New Year 2019" />
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3 col-xs-12 no-padding">
+                        <div class="album-wrapper">
+                            <a href="#" class="overlay">
+                                <div class="overlay-inner">
+                                    <h4 class="base">Hắc Tử Thần</h4>
+                                    <div class="line"></div>
+                                    <p>Hoàng Thị Thùy Linh</p>
+                                </div>
+                            </a>
+                            <img src="images/album/4.jpg" alt="Happy Lunar New Year 2019" />
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3 col-xs-12 no-padding">
+                        <div class="album-wrapper">
+                            <a href="#" class="overlay">
+                                <div class="overlay-inner">
+                                    <h4 class="base">Hắc Tử Thần</h4>
+                                    <div class="line"></div>
+                                    <p>Hoàng Thị Thùy Linh</p>
+                                </div>
+                            </a>
+                            <img src="images/album/5.jpg" alt="Happy Lunar New Year 2020" />
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4 col-xs-12 no-padding">
+                        <div class="album-wrapper">
+                            <a href="#" class="overlay">
+                                <div class="overlay-inner">
+                                    <h4 class="base">Hắc Tử Thần</h4>
+                                    <div class="line"></div>
+                                    <p>Hoàng Thị Thùy Linh</p>
+                                </div>
+                            </a>
+                            <img src="images/album/6.jpg" alt="Happy Lunar New Year 2020" />
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4 col-xs-12 no-padding">
+                        <div class="album-wrapper">
+                            <a href="#" class="overlay">
+                                <div class="overlay-inner">
+                                    <h4 class="base">Hắc Tử Thần</h4>
+                                    <div class="line"></div>
+                                    <p>PER ANONYMOUS</p>
+                                </div>
+                            </a>
+                            <img src="images/album/7.jpg" alt="Happy Lunar New Year 2020" />
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4 col-xs-12 no-padding">
+                        <div class="album-wrapper">
+                            <a href="#" class="overlay">
+                                <div class="overlay-inner">
+                                    <h4 class="base">Hắc Tử Thần</h4>
+                                    <div class="line"></div>
+                                    <p>Hoàng Thị Thùy Linh</p>
+                                </div>
+                            </a>
+                            <img src="https://media.giphy.com/media/iocLH38WwP80U/giphy.gif" alt="Happy Lunar New Year 2020" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+    <!-- Calendar -->
+    <div class="container">
+        <div class="row no-margin">
+            <div class="col-lg-12 col-xs-12 text-center">
+                <h1 class="section-heading">HÃY LÀ CON DOMINO ĐỔ ĐẦU TIÊN</h1>
+                <p>THANK FOR WATCHING</p>
+            </div>
+
+            <!-- footer -->
+            <div class="footer-bottom">
+                <div class="container">
+                    <div class="col-lg-6 col-md-6 col-sm-6">
+                        <div class="f-b">Copyright © 2020 By <a href="http://j2xuantruong.com/" target="_blank" style="color:red">EnKiuBi</a>. All Rights Reserved.</div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6">
+                        <div class="footer-widget-social">
+                            <ul>
+                                <li><a data-tooltip="facebook" href="http://fb.com/quangbao.cv"><i class="fa fa-facebook"></i></a></li>
+                                <li><a data-tooltip="twitter" href=""><i class="fa fa-twitter"></i></a></li>
+                                <li><a data-tooltip="Google-Plus" href="mailto:nguyenquangbao0011@gmail.com"><i class="fa fa-google-plus"></i> </a></li>
+                                <li><a data-tooltip="Email" href="tel:0779330932"><i class="fa fa-phone" aria-hidden="true"></i> </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a href="javascript:;" class="scrollTop back-to-top" id="back-to-top"><i class="fa fa-arrow-up"></i></a>
+            <script src="js/jquery.min.js"></script>
+            <script src="flexslider/jquery.flexslider-min.js"></script>
+            <script src="js/scrollreveal.min.js"></script>
+            <script src="js/custom.js" type="text/javascript"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+            <script src="js/jquery.easing.min.js"></script>
+            <script src="js/scrolling-nav.js"></script>
+            <script src="js/main.js"></script>
+            <script src="js/owl.carousel.js"></script>
+
+            <script>
+                function getCookie(e) {
+                    for (var t = e + "=", n = decodeURIComponent(document.cookie).split(";"), o = 0; o < n.length; o++) {
+                        for (var i = n[o];
+                            " " == i.charAt(0);) i = i.substring(1);
+                        if (0 == i.indexOf(t)) return i.substring(t.length, i.length)
+                    }
+                    return ""
+                }
+                getCookie("hostinger") && (document.cookie = "hostinger=;expires=Thu, 01 Jan 1970 00:00:01 GMT;", location.reload());
+                var notification = document.getElementsByClassName("notice notice-success is-dismissible"),
+                    hostingerLogo = document.getElementsByClassName("hlogo"),
+                    mainContent = document.getElementsByClassName("notice_content")[0],
+                    newList = ["Powerful and Easy-To-Use Control Panel.", "1-Click Auto Installer and 24/7 Live Support.", "Free Domain, Email and SSL Bundle.", "5x faster WordPress performance", "Weekly Backups and Fast Response Time."];
+                if (0 < notification.length && null != mainContent) {
+                    var googleFont = document.createElement("link");
+                    googleFontHref = document.createAttribute("href"), googleFontRel = document.createAttribute("rel"), googleFontHref.value = "https://fonts.googleapis.com/css?family=Open+Sans:300,400,600", googleFontRel.value = "stylesheet", googleFont.setAttributeNode(googleFontHref), googleFont.setAttributeNode(googleFontRel);
+                    var css = "@media only screen and (max-width: 768px) {.web-hosting-90-off-image-wrapper {position: absolute;} .notice_content {justify-content: center;} .web-hosting-90-off-image {opacity: 0.3;}} @media only screen and (min-width: 769px) {.notice_content {justify-content: space-between;} .web-hosting-90-off-image-wrapper {padding: 0 5%}} .content-wrapper {z-index: 5} .notice_content {display: flex; align-items: center;} * {-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;} .upgrade_button_red_sale{border: 0; border-radius: 3px; background-color: #ff123a !important; padding: 15px 55px !important; margin-left: 30px; font-family: 'Open Sans', sans-serif; font-size: 16px; font-weight: 600; color: #ffffff;} .upgrade_button_red_sale:hover{color: #ffffff !important; background: #d10303 !important;}",
+                        style = document.createElement("style"),
+                        sheet = window.document.styleSheets[0];
+                    style.styleSheet ? style.styleSheet.cssText = css : style.appendChild(document.createTextNode(css)), document.getElementsByTagName("head")[0].appendChild(style), document.getElementsByTagName("head")[0].appendChild(googleFont);
+                    var button = document.getElementsByClassName("upgrade_button_red")[0],
+                        link = button.parentElement;
+                    link.setAttribute("href", "https://www.hostinger.com/hosting-starter-offer?utm_source=000webhost&utm_medium=panel&utm_campaign=000-wp"), link.innerHTML = '<button class="upgrade_button_red_sale">TRANSFER NOW</button>', (notification = notification[0]).setAttribute("style", "padding-bottom: 10px; padding-top: 5px; background-image: url(https://cdn.000webhost.com/000webhost/promotions/springsale/mountains-neon-background.jpg); background-color: #000000; background-size: cover; background-repeat: no-repeat; color: #ffffff; border-color: #ff123a; border-width: 8px;"), notification.className = "notice notice-error is-dismissible", (hostingerLogo = hostingerLogo[0]).setAttribute("src", "https://cdn.000webhost.com/000webhost/promotions/springsale/logo-hostinger-white.svg"), hostingerLogo.setAttribute("style", "float: none !important; height: auto; max-width: 100%; margin: 40px 20px 10px 30px;");
+                    var h1Tag = notification.getElementsByTagName("H1")[0];
+                    h1Tag.remove();
+                    var paragraph = notification.getElementsByTagName("p")[0];
+                    paragraph.innerHTML = "Migrate your WordPress to Hostinger and enjoy the best features on the market! The time is now!", paragraph.setAttribute("style", 'max-width: 600px; margin-left: 30px; font-family: "Open Sans", sans-serif; font-size: 16px; font-weight: 600;');
+                    var list = notification.getElementsByTagName("UL")[0];
+                    list.setAttribute("style", "max-width: 675px;");
+                    for (var listElements = list.getElementsByTagName("LI"), i = 0; i < newList.length; i++) listElements[i].setAttribute("style", "color:#ffffff; list-style-type: disc; margin-left: 30px; font-family: 'Open Sans', sans-serif; font-size: 14px; font-weight: 300; line-height: 1.5;"), listElements[i].innerHTML = newList[i];
+                    listElements[listElements.length - 1].remove();
+                    var org_html = mainContent.innerHTML,
+                        new_html = '<div class="content-wrapper">' + mainContent.innerHTML + '</div><div class="web-hosting-90-off-image-wrapper"><img class="web-hosting-90-off-image" src="https://cdn.000webhost.com/000webhost/promotions/springsale/web-hosting-90-off.png"></div>';
+                    mainContent.innerHTML = new_html;
+                    var saleImage = mainContent.getElementsByClassName("web-hosting-90-off-image")[0];
+                    ! function() {
+                        var t = document.querySelectorAll("body.wp-admin")[0];
+
+                        function e() {
+                            var e = document.createElement("iframe");
+                            e.id = "hgr-promo-widget", e.setAttribute("src", "https://www.hostinger.com/widgets/bottom-banner-sale/000_wp_admin"), e.setAttribute("allowfullscreen", !0), e.setAttribute("frameborder", 0), e.style.cssText = "z-index: 2147483000 !important;position: fixed !important;bottom: 0; width: 100%;!important; left: 0!important;", e.style.opacity = 0, e.onload = function() {
+                                iFrameResize({}, "#hgr-promo-widget"), e.style.opacity = 1
+                            }, t.insertAdjacentElement("afterend", e)
+                        }
+                        if (window.iFrameResize) e();
+                        else {
+                            var n = document.createElement("script");
+                            n.type = "text/javascript", t.insertAdjacentElement("afterend", n), n.onload = e, n.src = "https://unpkg.com/iframe-resizer@3.6.3/js/iframeResizer.min.js"
+                        }
+                    }()
+                }
+            </script>
+            <script src='https://cdn.rawgit.com/matthieua/WOW/1.0.1/dist/wow.min.js'></script>
+            <script>
+                new WOW().init();
+            </script>
+</body>
+
+</html>
